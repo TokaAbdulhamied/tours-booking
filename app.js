@@ -2,10 +2,19 @@ const express = require("express");
 const fs = require("fs");
 const app = express();
 const port = 3000;
+
+// MIDDLEWARES
 app.use(express.json());
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
+
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
+
+// ROUTE HANDLERS
 const createTour = (req, res) => {
   const newTour = Object.assign(
     { id: tours[tours.length - 1].id + 1 },
@@ -18,7 +27,7 @@ const createTour = (req, res) => {
     (err) => {
       res.status(201).json({
         status: "success",
-        data: { tour: newTour },
+        data: { requestedAt: req.requestTime, tour: newTour },
       });
     }
   );
@@ -44,6 +53,7 @@ const getTours = (req, res) => {
     data: { tours },
   });
 };
+// ROUTES
 
 // app.post("/api/tours", createTour);
 // app.get("/api/tours/:id?", getTour);
@@ -51,7 +61,7 @@ const getTours = (req, res) => {
 
 app.route("/api/tours").get(getTours).post(createTour);
 app.route("/api/tours/:id").get(getTour);
-
+//START SERVER
 app.listen(port, () => {
   console.log(`Server listening on ${port}`);
 });
