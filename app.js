@@ -1,7 +1,7 @@
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
-const toursRouter = require("./routes/tours");
+const toursRouter = require("./routes/tour");
 
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
