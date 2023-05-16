@@ -1,5 +1,6 @@
 const fs = require("fs");
 const Tour = require("../models/tour");
+const { query } = require("express");
 
 // exports.checkId = (req, res, next, val) => {
 //   const id = val * 1;
@@ -93,7 +94,21 @@ exports.getTour = async (req, res) => {
 
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    console.log(req.query);
+    let queryObj = { ...req.query };
+    let excludedFeilds = ["limit", "sort", "page", "field"];
+    excludedFeilds.forEach((e) => delete queryObj[e]);
+    console.log("queryObj", queryObj);
+    let query = Tour.find(queryObj);
+
+    if (req.query.sort) {
+      const sortedBy = req.query.sort.split(",").join(" ");
+      query = query.sort(sortedBy);
+    } else {
+      query = query.sort("-createdAt");
+    }
+    const tours = await query;
+
     res.status(200).json({
       status: "success",
       data: {
